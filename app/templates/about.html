@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}About - ServiceLink{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="mb-4">About ServiceLink</h1>
+            
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h3 class="card-title">Our Mission</h3>
+                    <p class="card-text">
+                        ServiceLink is a web-based platform designed to connect local service providers with clients who need their services. 
+                        Whether you're looking for a cleaner, handyman, tutor, or any other service professional, ServiceLink makes it easy 
+                        to find, book, and review qualified service providers in your area.
+                    </p>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h3 class="card-title">How It Works</h3>
+                    
+                    <h5 class="mt-4">For Clients:</h5>
+                    <ol>
+                        <li>Create an account and complete your profile</li>
+                        <li>Search for services by category and location</li>
+                        <li>Browse provider profiles and read reviews</li>
+                        <li>Book available time slots with your chosen provider</li>
+                        <li>Leave a review after the service is completed</li>
+                    </ol>
+
+                    <h5 class="mt-4">For Service Providers:</h5>
+                    <ol>
+                        <li>Register as a service provider</li>
+                        <li>Create and manage your service listings</li>
+                        <li>Set your availability and pricing</li>
+                        <li>Receive and manage booking requests</li>
+                        <li>Build your reputation through client reviews</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h3 class="card-title">Key Features</h3>
+                    <ul>
+                        <li><strong>User Authentication:</strong> Secure registration and login system</li>
+                        <li><strong>Role-Based Access:</strong> Separate dashboards for clients and providers</li>
+                        <li><strong>Service Discovery:</strong> Search and filter services by category and location</li>
+                        <li><strong>Booking System:</strong> Easy-to-use booking with availability management</li>
+                        <li><strong>Reviews & Ratings:</strong> Transparent feedback system for completed services</li>
+                        <li><strong>Dashboard Management:</strong> Track bookings and manage services</li>
+                        <li><strong>Secure Platform:</strong> Password hashing and CSRF protection</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h3 class="card-title">Service Categories</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul>
+                                <li>Cleaning Services</li>
+                                <li>Handyman Services</li>
+                                <li>Tutoring & Education</li>
+                                <li>Plumbing</li>
+                                <li>Electrical Work</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul>
+                                <li>Gardening & Landscaping</li>
+                                <li>Painting Services</li>
+                                <li>Moving & Transportation</li>
+                                <li>Pet Care</li>
+                                <li>And Many More...</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-5">
+                <h3>Ready to Get Started?</h3>
+                <p class="text-muted">Join our community today and experience the convenience of ServiceLink</p>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">Sign Up Now</a>
+                    <a href="{{ url_for('main.search') }}" class="btn btn-outline-primary btn-lg">Browse Services</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

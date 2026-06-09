@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}My Bookings - ServiceLink{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4">My Bookings</h1>
+    
+    <!-- Filter Tabs -->
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a class="nav-link active" href="{{ url_for('provider.bookings') }}">All Bookings</a>
+        </li>
+    </ul>
+    
+    {% if bookings.items %}
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Client</th>
+                                <th>Service</th>
+                                <th>Date & Time</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in bookings.items %}
+                            <tr>
+                                <td>
+                                    <strong>{{ booking.client.username }}</strong><br>
+                                    <small class="text-muted">
+                                        <i class="bi bi-geo-alt"></i> {{ booking.client.location }}
+                                    </small>
+                                </td>
+                                <td>
+                                    <strong>{{ booking.service.service_name }}</strong><br>
+                                    <small class="text-muted">${{ booking.service.price }}</small>
+                                </td>
+                                <td>
+                                    {{ booking.booking_date.strftime('%b %d, %Y') }}<br>
+                                    <small class="text-muted">
+                                        {{ booking.start_time.strftime('%I:%M %p') }} - {{ booking.end_time.strftime('%I:%M %p') }}
+                                    </small>
+                                </td>
+                                <td>
+                                    {% if booking.status == 'pending' %}
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                    {% elif booking.status == 'confirmed' %}
+                                        <span class="badge bg-info">Confirmed</span>
+                                    {% elif booking.status == 'completed' %}
+                                        <span class="badge bg-success">Completed</span>
+                                    {% elif booking.status == 'cancelled' %}
+                                        <span class="badge bg-danger">Cancelled</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if booking.status == 'pending' %}
+                                        <form method="POST" action="{{ url_for('provider.confirm_booking', booking_id=booking.id) }}" 
+                                              class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-success mb-1">
+                                                <i class="bi bi-check-circle"></i> Confirm
+                                            </button>
+                                        </form>
+                                    {% elif booking.status == 'confirmed' %}
+                                        <form method="POST" action="{{ url_for('provider.complete_booking', booking_id=booking.id) }}" 
+                                              class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-primary mb-1">
+                                                <i class="bi bi-check-all"></i> Complete
+                                            </button>
+                                        </form>
+                                    {% elif booking.status == 'completed' %}
+                                        {% if booking.review %}
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-star-fill"></i> {{ booking.review.rating }}/5
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted">No review yet</span>
+                                        {% endif %}
+                                    {% endif %}
+                                    
+                                    {% if booking.notes %}
+                                        <button class="btn btn-sm btn-outline-secondary mb-1" 
+                                                data-bs-toggle="collapse" 
+                                                data-bs-target="#notes-{{ booking.id }}">
+                                            <i class="bi bi-file-text"></i>
+                                        </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% if booking.notes %}
+                            <tr class="collapse" id="notes-{{ booking.id }}">
+                                <td colspan="5" class="bg-light">
+                                    <strong>Client Notes:</strong> {{ booking.notes }}
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% if bookings.pages > 1 %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item {% if not bookings.has_prev %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('provider.bookings', page=bookings.prev_num) }}">
+                        Previous
+                    </a>
+                </li>
+                {% for page_num in range(1, bookings.pages + 1) %}
+                    <li class="page-item {% if page_num == bookings.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('provider.bookings', page=page_num) }}">
+                            {{ page_num }}
+                        </a>
+                    </li>
+                {% endfor %}
+                <li class="page-item {% if not bookings.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('provider.bookings', page=bookings.next_num) }}">
+                        Next
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        {% endif %}
+    {% else %}
+        <div class="card shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-calendar-x fs-1 text-muted"></i>
+                <h3 class="mt-3">No Bookings Yet</h3>
+                <p class="text-muted">Bookings will appear here once clients start booking your services.</p>
+                <a href="{{ url_for('provider.services') }}" class="btn btn-primary">
+                    <i class="bi bi-briefcase"></i> Manage Services
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

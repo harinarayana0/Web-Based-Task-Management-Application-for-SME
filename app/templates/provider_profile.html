@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}{{ provider.username }} - ServiceLink{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <!-- Provider Info -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-body text-center">
+                    <div class="avatar-circle bg-primary text-white mx-auto mb-3" style="width: 80px; height: 80px; line-height: 80px; font-size: 2rem;">
+                        {{ provider.username[0]|upper }}
+                    </div>
+                    <h3>{{ provider.username }}</h3>
+                    <p class="text-muted mb-3">
+                        <i class="bi bi-geo-alt"></i> {{ provider.location }}
+                    </p>
+                    
+                    <div class="mb-3">
+                        <div class="text-warning mb-1">
+                            {% set rating = provider.get_average_rating() %}
+                            {% for i in range(5) %}
+                                {% if i < rating %}
+                                    <i class="bi bi-star-fill fs-5"></i>
+                                {% else %}
+                                    <i class="bi bi-star fs-5"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <p class="mb-0">{{ rating|round(1) }} Average Rating</p>
+                        <small class="text-muted">{{ reviews|length }} Reviews</small>
+                    </div>
+                    
+                    {% if provider.bio %}
+                    <hr>
+                    <p class="text-muted">{{ provider.bio }}</p>
+                    {% endif %}
+                    
+                    <hr>
+                    <p class="mb-1"><strong>Member Since</strong></p>
+                    <p class="text-muted">{{ provider.created_at.strftime('%B %Y') }}</p>
+                    
+                    {% if provider.phone %}
+                    <p class="mb-1"><strong>Contact</strong></p>
+                    <p class="text-muted">{{ provider.phone }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Services and Reviews -->
+        <div class="col-lg-8">
+            <!-- Services Section -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">Services Offered</h4>
+                    {% if services %}
+                        <div class="row g-3">
+                            {% for service in services %}
+                            <div class="col-md-6">
+                                <div class="card h-100 border">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h5 class="card-title mb-0">{{ service.service_name }}</h5>
+                                            <span class="badge bg-primary">{{ service.category|replace('_', ' ')|title }}</span>
+                                        </div>
+                                        <p class="card-text text-muted">
+                                            {{ service.description[:80] }}{% if service.description|length > 80 %}...{% endif %}
+                                        </p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0 text-primary">${{ service.price }}/hr</h5>
+                                            <a href="{{ url_for('main.service_detail', service_id=service.id) }}" 
+                                               class="btn btn-sm btn-primary">
+                                                Book Now
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No active services at the moment.</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Reviews Section -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">Reviews</h4>
+                    {% if reviews %}
+                        {% for review in reviews %}
+                        <div class="mb-3 pb-3 {% if not loop.last %}border-bottom{% endif %}">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <strong>{{ review.client.username }}</strong>
+                                    <div class="text-warning">
+                                        {% for i in range(review.rating) %}
+                                            <i class="bi bi-star-fill"></i>
+                                        {% endfor %}
+                                        {% for i in range(5 - review.rating) %}
+                                            <i class="bi bi-star"></i>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <small class="text-muted">{{ review.created_at.strftime('%b %d, %Y') }}</small>
+                            </div>
+                            {% if review.comment %}
+                            <p class="mt-2 mb-0">{{ review.comment }}</p>
+                            {% endif %}
+                            <small class="text-muted">Service: {{ review.booking.service.service_name }}</small>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No reviews yet. Be the first to review this provider!</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

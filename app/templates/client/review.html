@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Review Service - ServiceLink{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <h2 class="mb-4">Review Service</h2>
+                    
+                    <!-- Booking Information -->
+                    <div class="alert alert-info">
+                        <h5><i class="bi bi-info-circle"></i> Service Details</h5>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Service:</strong> {{ booking.service.service_name }}</p>
+                                <p><strong>Provider:</strong> {{ booking.service.provider.username }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Date:</strong> {{ booking.booking_date.strftime('%B %d, %Y') }}</p>
+                                <p><strong>Time:</strong> {{ booking.start_time.strftime('%I:%M %p') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form method="POST" action="{{ url_for('client.review_booking', booking_id=booking.id) }}" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-4">
+                            {{ form.rating.label(class="form-label") }}
+                            {{ form.rating(class="form-select" + (" is-invalid" if form.rating.errors else "")) }}
+                            {% if form.rating.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.rating.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">How would you rate this service?</small>
+                        </div>
+                        
+                        <div class="mb-4">
+                            {{ form.comment.label(class="form-label") }}
+                            {{ form.comment(class="form-control" + (" is-invalid" if form.comment.errors else ""), rows="5", placeholder="Share your experience with this service...") }}
+                            {% if form.comment.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.comment.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">Help others by sharing your honest feedback (optional).</small>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('client.bookings') }}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-star-fill"></i> Submit Review
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

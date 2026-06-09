@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}{{ service.service_name }} - ServiceLink{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <!-- Service Details -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h2 class="card-title">{{ service.service_name }}</h2>
+                            <span class="badge bg-primary fs-6">{{ service.category|replace('_', ' ')|title }}</span>
+                        </div>
+                        <h3 class="text-primary mb-0">${{ service.price }}/hr</h3>
+                    </div>
+                    
+                    <hr>
+                    
+                    <h5>Description</h5>
+                    <p class="text-muted">{{ service.description }}</p>
+                    
+                    <hr>
+                    
+                    <h5>Service Provider</h5>
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3">
+                            <div class="avatar-circle bg-primary text-white">
+                                {{ service.provider.username[0]|upper }}
+                            </div>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">
+                                <a href="{{ url_for('main.provider_profile', provider_id=service.provider_id) }}">
+                                    {{ service.provider.username }}
+                                </a>
+                            </h6>
+                            <p class="text-muted mb-0">
+                                <i class="bi bi-geo-alt"></i> {{ service.provider.location }}
+                            </p>
+                            <div>
+                                <span class="text-warning">
+                                    {% set rating = service.provider.get_average_rating() %}
+                                    {% for i in range(5) %}
+                                        {% if i < rating %}
+                                            <i class="bi bi-star-fill"></i>
+                                        {% else %}
+                                            <i class="bi bi-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </span>
+                                <small class="text-muted">({{ rating|round(1) }})</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if service.provider.bio %}
+                    <p class="text-muted"><em>{{ service.provider.bio }}</em></p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Reviews</h5>
+                    {% if reviews %}
+                        {% for review in reviews %}
+                        <div class="mb-3 pb-3 {% if not loop.last %}border-bottom{% endif %}">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <strong>{{ review.client.username }}</strong>
+                                    <div class="text-warning">
+                                        {% for i in range(review.rating) %}
+                                            <i class="bi bi-star-fill"></i>
+                                        {% endfor %}
+                                        {% for i in range(5 - review.rating) %}
+                                            <i class="bi bi-star"></i>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <small class="text-muted">{{ review.created_at.strftime('%B %d, %Y') }}</small>
+                            </div>
+                            {% if review.comment %}
+                            <p class="mt-2 mb-0">{{ review.comment }}</p>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No reviews yet. Be the first to review this service!</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking Sidebar -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Book This Service</h5>
+                    
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.role == 'client' %}
+                            {% if available_slots %}
+                                <h6 class="mb-3">Available Time Slots</h6>
+                                <div class="list-group mb-3" style="max-height: 400px; overflow-y: auto;">
+                                    {% for slot in available_slots[:10] %}
+                                    <a href="{{ url_for('client.book_service', service_id=service.id, slot_id=slot.id) }}" 
+                                       class="list-group-item list-group-item-action">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong>{{ slot.date.strftime('%B %d, %Y') }}</strong><br>
+                                                <small class="text-muted">
+                                                    {{ slot.start_time.strftime('%I:%M %p') }} - {{ slot.end_time.strftime('%I:%M %p') }}
+                                                </small>
+                                            </div>
+                                            <i class="bi bi-chevron-right"></i>
+                                        </div>
+                                    </a>
+                                    {% endfor %}
+                                </div>
+                                {% if available_slots|length > 10 %}
+                                <small class="text-muted">Showing first 10 slots. More available after booking.</small>
+                                {% endif %}
+                            {% else %}
+                                <div class="alert alert-warning">
+                                    <i class="bi bi-exclamation-triangle"></i> No available time slots at the moment. Please check back later.
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> You're logged in as a provider. Switch to a client account to book services.
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> Please <a href="{{ url_for('auth.login') }}">log in</a> to book this service.
+                        </div>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-primary w-100 mb-2">Log In</a>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-outline-primary w-100">Sign Up</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

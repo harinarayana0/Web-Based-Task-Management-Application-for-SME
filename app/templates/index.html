@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section bg-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">Find Local Service Providers</h1>
+                <p class="lead mb-4">Connect with trusted professionals in your area. From cleaning to tutoring, we've got you covered.</p>
+                <div class="d-grid gap-2 d-md-flex">
+                    <a href="{{ url_for('main.search') }}" class="btn btn-light btn-lg px-4">
+                        <i class="bi bi-search"></i> Search Services
+                    </a>
+                    {% if not current_user.is_authenticated %}
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light btn-lg px-4">
+                        <i class="bi bi-person-plus"></i> Sign Up
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block">
+                <img src="{{ url_for('static', filename='images/hero-illustration.svg') }}" alt="Services" class="img-fluid" onerror="this.style.display='none'">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="container my-5">
+    <div class="row text-center mb-5">
+        <div class="col">
+            <h2 class="fw-bold">Why Choose ServiceLink?</h2>
+            <p class="text-muted">Your trusted platform for local services</p>
+        </div>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-primary text-white rounded-circle mx-auto mb-3" style="width: 60px; height: 60px; line-height: 60px;">
+                        <i class="bi bi-shield-check fs-3"></i>
+                    </div>
+                    <h5 class="card-title">Verified Providers</h5>
+                    <p class="card-text text-muted">All service providers are verified and reviewed by our community.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-primary text-white rounded-circle mx-auto mb-3" style="width: 60px; height: 60px; line-height: 60px;">
+                        <i class="bi bi-calendar-check fs-3"></i>
+                    </div>
+                    <h5 class="card-title">Easy Booking</h5>
+                    <p class="card-text text-muted">Book services in just a few clicks. Simple and convenient.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-primary text-white rounded-circle mx-auto mb-3" style="width: 60px; height: 60px; line-height: 60px;">
+                        <i class="bi bi-star-fill fs-3"></i>
+                    </div>
+                    <h5 class="card-title">Ratings & Reviews</h5>
+                    <p class="card-text text-muted">Read honest reviews from other customers before booking.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Popular Services Section -->
+{% if services %}
+<div class="bg-light py-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col">
+                <h2 class="fw-bold">Popular Services</h2>
+                <p class="text-muted">Discover our most popular service providers</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            {% for service in services %}
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title mb-0">{{ service.service_name }}</h5>
+                            <span class="badge bg-primary">{{ service.category|replace('_', ' ')|title }}</span>
+                        </div>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-person"></i> {{ service.provider.username }} 
+                            <span class="ms-2"><i class="bi bi-geo-alt"></i> {{ service.provider.location }}</span>
+                        </p>
+                        <p class="card-text text-muted">{{ service.description[:100] }}{% if service.description|length > 100 %}...{% endif %}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-warning">
+                                    {% set rating = service.get_average_rating() %}
+                                    {% for i in range(5) %}
+                                        {% if i < rating %}
+                                            <i class="bi bi-star-fill"></i>
+                                        {% else %}
+                                            <i class="bi bi-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </span>
+                                <small class="text-muted">({{ rating|round(1) }})</small>
+                            </div>
+                            <h5 class="mb-0 text-primary">${{ service.price }}</h5>
+                        </div>
+                        <a href="{{ url_for('main.service_detail', service_id=service.id) }}" class="btn btn-primary w-100 mt-3">View Details</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{{ url_for('main.search') }}" class="btn btn-outline-primary">View All Services</a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- CTA Section -->
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100 bg-primary text-white">
+                <div class="card-body p-4">
+                    <h3 class="card-title mb-3">Looking for Services?</h3>
+                    <p class="card-text">Find trusted local service providers in your area. Browse services, read reviews, and book instantly.</p>
+                    <a href="{{ url_for('main.search') }}" class="btn btn-light">Browse Services</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100 bg-dark text-white">
+                <div class="card-body p-4">
+                    <h3 class="card-title mb-3">Provide Services?</h3>
+                    <p class="card-text">Join our platform and connect with clients who need your services. Grow your business today.</p>
+                    {% if current_user.is_authenticated and current_user.role == 'provider' %}
+                        <a href="{{ url_for('provider.dashboard') }}" class="btn btn-light">Go to Dashboard</a>
+                    {% else %}
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-light">Sign Up as Provider</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

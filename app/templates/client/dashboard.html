@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Client Dashboard - ServiceLink{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4">Client Dashboard</h1>
+    <p class="text-muted">Welcome back, {{ current_user.username }}!</p>
+    
+    <!-- Statistics Cards -->
+    <div class="row g4 mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Total Bookings</h6>
+                            <h2 class="mb-0">{{ total_bookings }}</h2>
+                        </div>
+                        <div class="bg-primary text-white rounded p-3">
+                            <i class="bi bi-calendar-check fs-3"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Completed</h6>
+                            <h2 class="mb-0">{{ completed_bookings }}</h2>
+                        </div>
+                        <div class="bg-success text-white rounded p-3">
+                            <i class="bi bi-check-circle fs-3"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Pending</h6>
+                            <h2 class="mb-0">{{ pending_bookings }}</h2>
+                        </div>
+                        <div class="bg-warning text-white rounded p-3">
+                            <i class="bi bi-clock-history fs-3"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Quick Actions</h5>
+            <div class="d-grid gap-2 d-md-flex">
+                <a href="{{ url_for('main.search') }}" class="btn btn-primary">
+                    <i class="bi bi-search"></i> Search Services
+                </a>
+                <a href="{{ url_for('client.bookings') }}" class="btn btn-outline-primary">
+                    <i class="bi bi-calendar-check"></i> View All Bookings
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Bookings -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Recent Bookings</h5>
+                <a href="{{ url_for('client.bookings') }}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if bookings %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Provider</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in bookings %}
+                            <tr>
+                                <td>{{ booking.service.service_name }}</td>
+                                <td>{{ booking.service.provider.username }}</td>
+                                <td>{{ booking.booking_date.strftime('%b %d, %Y') }}</td>
+                                <td>{{ booking.start_time.strftime('%I:%M %p') }}</td>
+                                <td>
+                                    {% if booking.status == 'pending' %}
+                                        <span class="badge bg-warning">Pending</span>
+                                    {% elif booking.status == 'confirmed' %}
+                                        <span class="badge bg-info">Confirmed</span>
+                                    {% elif booking.status == 'completed' %}
+                                        <span class="badge bg-success">Completed</span>
+                                    {% elif booking.status == 'cancelled' %}
+                                        <span class="badge bg-danger">Cancelled</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if booking.can_be_reviewed() %}
+                                        <a href="{{ url_for('client.review_booking', booking_id=booking.id) }}" 
+                                           class="btn btn-sm btn-primary">
+                                            <i class="bi bi-star"></i> Review
+                                        </a>
+                                    {% elif booking.status in ['pending', 'confirmed'] %}
+                                        <form method="POST" action="{{ url_for('client.cancel_booking', booking_id=booking.id) }}" 
+                                              class="d-inline"
+                                              onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="bi bi-x-circle"></i> Cancel
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-calendar-x fs-1 text-muted"></i>
+                    <p class="text-muted mt-2">You haven't made any bookings yet.</p>
+                    <a href="{{ url_for('main.search') }}" class="btn btn-primary">
+                        <i class="bi bi-search"></i> Browse Services
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

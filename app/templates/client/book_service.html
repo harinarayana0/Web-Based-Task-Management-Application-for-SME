@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}{{ booking.service.service_name }} - Book Service{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <h2 class="mb-4">Book Service</h2>
+                    
+                    <!-- Service Information -->
+                    <div class="alert alert-info">
+                        <h5><i class="bi bi-info-circle"></i> Booking Details</h5>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Service:</strong> {{ service.service_name }}</p>
+                                <p><strong>Provider:</strong> {{ service.provider.username }}</p>
+                                <p><strong>Location:</strong> {{ service.provider.location }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Date:</strong> {{ slot.date.strftime('%B %d, %Y') }}</p>
+                                <p><strong>Time:</strong> {{ slot.start_time.strftime('%I:%M %p') }} - {{ slot.end_time.strftime('%I:%M %p') }}</p>
+                                <p><strong>Price:</strong> ${{ service.price }}/hr</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form method="POST" action="{{ url_for('client.book_service', service_id=service.id, slot_id=slot.id) }}" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.notes.label(class="form-label") }}
+                            {{ form.notes(class="form-control" + (" is-invalid" if form.notes.errors else ""), rows="4", placeholder="Add any special requests or information for the provider...") }}
+                            {% if form.notes.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.notes.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i> 
+                            <strong>Note:</strong> Your booking will be pending until the provider confirms it.
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('main.service_detail', service_id=service.id) }}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Confirm Booking
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
