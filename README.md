@@ -1,5 +1,5 @@
 # Web-Based-Task-Management-Application-for-SME-s
-
+The main aim of the study is to develop an orderly task management system which eases the manner in which tasks are generated, discussed and handled on real-time.
 # ServiceLink
 
 A production-ready web application that connects local service providers with clients who need their services.
