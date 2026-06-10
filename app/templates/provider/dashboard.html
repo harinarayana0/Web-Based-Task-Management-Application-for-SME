@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - ServiceLink{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <h1 class="mb-4">Dashboard</h1>
+
+  <div class="row g-4">
+    <!-- Services card -->
+    <div class="col-md-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body text-center">
+          <h5 class="card-title">My Services</h5>
+          <p class="display-6">
+            {{ current_user.services.count() }}
+          </p>
+          <a href="{{ url_for('provider.services') }}" class="btn btn-outline-primary btn-sm">
+            Manage Services
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upcoming bookings card -->
+    <div class="col-md-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body text-center">
+          <h5 class="card-title">Upcoming Bookings</h5>
+          <p class="display-6">
+            {{ current_user.bookings_received
+               |selectattr('status', 'equalto', 'confirmed')
+               |list
+               |length }}
+          </p>
+          <a href="{{ url_for('provider.bookings') }}" class="btn btn-outline-primary btn-sm">
+            View Bookings
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Average rating card -->
+    <div class="col-md-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body text-center">
+          <h5 class="card-title">Average Rating</h5>
+          <p class="display-6 text-warning">
+            {{ current_user.get_average_rating()|round(1) }}
+          </p>
+          <a href="{{ url_for('provider.reviews') }}" class="btn btn-outline-primary btn-sm">
+            View Reviews
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile card -->
+    <div class="col-md-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body text-center">
+          <h5 class="card-title">Profile</h5>
+          <p class="text-muted mb-3">
+            {{ current_user.location or "No location set" }}
+          </p>
+          <a href="{{ url_for('provider.profile') }}" class="btn btn-outline-secondary btn-sm">
+            Edit Profile
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Bookings section -->
+  <div class="card shadow-sm mt-5">
+    <div class="card-body">
+      <h4 class="card-title mb-3">Recent Bookings</h4>
+
+      {# Get all bookings for this provider, sorted by created_at desc #}
+      {% set recent = current_user.bookings_received
+                       |list
+                       |sort(attribute='created_at', reverse=True) %}
+
+      {% if recent %}
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Client</th>
+                <th>Service</th>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {# Limit to the first 5 bookings here (slice is allowed in the for loop) #}
+              {% for booking in recent[:5] %}
+              <tr>
+                <td>{{ booking.client.username }}</td>
+                <td>{{ booking.service.service_name }}</td>
+                <td>{{ booking.booking_date.strftime('%b %d, %Y') }}</td>
+                <td>
+                  {% if booking.status == 'pending' %}
+                    <span class="badge bg-warning text-dark">Pending</span>
+                  {% elif booking.status == 'confirmed' %}
+                    <span class="badge bg-info">Confirmed</span>
+                  {% elif booking.status == 'completed' %}
+                    <span class="badge bg-success">Completed</span>
+                  {% elif booking.status == 'cancelled' %}
+                    <span class="badge bg-danger">Cancelled</span>
+                  {% else %}
+                    <span class="badge bg-secondary">{{ booking.status }}</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="text-muted mb-0">
+          No bookings yet. Once clients start booking your services, they’ll appear here.
+        </p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
